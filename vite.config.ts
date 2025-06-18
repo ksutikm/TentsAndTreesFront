@@ -10,4 +10,5 @@ export default defineConfig({
       src: '/src',
     },
   },
+  base: '/TentsAndTreesFront/',
 })
