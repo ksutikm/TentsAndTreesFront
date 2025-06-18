@@ -1,0 +1,48 @@
+@use "sass:color";
+@use "src/mixins.scss" as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.title {
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  font-size: 22px;
+}
+
+.root button {
+  width: 200px;
+  box-shadow: none;
+  outline: 0;
+  box-sizing: border-box;
+  padding: 12px 24px;
+  font-size: 18px;
+  line-height: 1;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  cursor: pointer;
+  border: 1px solid #877b66;
+  transition: var(--transition);
+
+  @include hoverable-background($color: #d4e6b5, $lightness: -20%);
+
+  &.disabled {
+    background: color.scale(#d4e6b5, $lightness: 0%);
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.selectsWrapper {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.select {
+  width: 120px;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}

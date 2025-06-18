@@ -1,0 +1,41 @@
+@use "src/mixins.scss" as *;
+
+.root {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  padding-top: 32px;
+  padding-bottom: 12px;
+  gap: 20px;
+
+  @media screen and (max-width: 600px) {
+    flex-direction: column;
+  }
+}
+
+.spacer {
+  flex-grow: 1;
+}
+
+.root button {
+  box-shadow: none;
+  outline: 0;
+  box-sizing: border-box;
+  padding: 12px 24px;
+  font-size: 18px;
+  line-height: 1;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  cursor: pointer;
+  border: 1px solid #877b66;
+  transition: var(--transition);
+
+  @include hoverable-background($color: #ffdf64, $lightness: -20%);
+
+  &.green {
+    @include hoverable-background($color: #d4e6b5, $lightness: -20%);
+  }
+
+  &.red {
+    @include hoverable-background($color: #fbaf7c, $lightness: -20%);
+  }
+}

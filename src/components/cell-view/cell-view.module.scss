@@ -1,0 +1,116 @@
+@use "src/mixins.scss" as *;
+
+$border-color: #582f0e;
+$empty-color: #f0ead2;
+
+.cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid $border-color;
+  border-bottom: 1px solid $border-color;
+  user-select: none;
+  cursor: pointer;
+  transition: background linear 0.3s;
+}
+
+.innerBox {
+  position: relative;
+  width: 100%;
+  padding: 5px;
+  padding-top: 100%;
+  transition: var(--transition);
+}
+
+.border_top {
+  border-top: 1px solid $border-color;
+}
+
+.border_left {
+  border-left: 1px solid $border-color;
+}
+
+.cell img {
+  position: absolute;
+  top: 15%;
+  left: 10%;
+  width: 80%;
+}
+
+.tent {
+  top: 0;
+
+  @include with-hover() {
+    transform: scale(0.95);
+  }
+}
+
+.empty {
+  @include with-hover() {
+    background: rgb(0 0 0 / 0.1);
+  }
+}
+
+.grass_0 {
+  @include hoverable-background($color: #55a630, $lightness: -5%);
+}
+
+.grass_1 {
+  @include hoverable-background($color: #aacc00, $lightness: -5%);
+}
+
+.grass_2 {
+  @include hoverable-background($color: #80b918, $lightness: -5%);
+}
+
+$bindingWidth: 4px;
+
+.binding_top {
+  &::after {
+    display: block;
+    content: '';
+    position: absolute;
+    height: 50%;
+    width: $bindingWidth;
+    left: calc(50% - $bindingWidth / 2);
+    top: 0;
+    background-color: white;
+  }
+}
+.binding_bottom {
+  &::after {
+    display: block;
+    content: '';
+    position: absolute;
+    height: 50%;
+    width: $bindingWidth;
+    left: calc(50% - $bindingWidth / 2);
+    top: 50%;
+    background-color: white;
+  }
+}
+.binding_left {
+  &::after {
+    display: block;
+    content: '';
+    position: absolute;
+    height: $bindingWidth;
+    width: 50%;
+    left: 0;
+    top: calc(50% - $bindingWidth / 2);
+    background-color: white;
+  }
+}
+.binding_right {
+  &::after {
+    display: block;
+    content: '';
+    position: absolute;
+    height: $bindingWidth;
+    width: 50%;
+    left: 50%;
+    top: calc(50% - $bindingWidth / 2);
+    background-color: white;
+  }
+}

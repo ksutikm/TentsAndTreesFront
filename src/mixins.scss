@@ -1,0 +1,17 @@
+@use "sass:color";
+
+@mixin with-hover {
+  @media (hover: hover) {
+    &:hover {
+      @content;
+    }
+  }
+}
+
+@mixin hoverable-background($color, $lightness) {
+  background: $color;
+
+  @include with-hover() {
+    background: color.scale($color, $lightness: $lightness);
+  }
+}
