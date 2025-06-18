@@ -49,8 +49,9 @@ export const NewGamePage = () => {
     setLoading(true);
     try {
       const resp = await axios.post<GenerateResponse>("https://tents-api.onrender.com/generate", {
-        size_n: rows.value,
-        size_m: columns.value,
+        rows: rows.value,
+        cols: columns.value,
+        difficulty: difficulty.value,
       });
       dispatch(setField({
         cells: resp.data.grid.map((row, rowIndex) => {
