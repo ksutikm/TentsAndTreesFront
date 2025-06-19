@@ -9,6 +9,12 @@
   padding: 40px 20px;
 }
 
+.mainTitle {
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  font-size: 40px;
+  margin-bottom: 20px;
+}
+
 .title {
   font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
   font-size: 22px;
@@ -39,7 +45,7 @@
 .selectsWrapper {
   display: flex;
   gap: 20px;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 }
 
 .select {

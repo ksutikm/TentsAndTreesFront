@@ -13,6 +13,7 @@ $empty-color: #f0ead2;
   user-select: none;
   cursor: pointer;
   transition: background linear 0.3s;
+  touch-action: none;
 }
 
 .innerBox {

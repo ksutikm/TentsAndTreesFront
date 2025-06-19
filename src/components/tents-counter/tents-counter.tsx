@@ -9,9 +9,16 @@ interface TentsCounterProps {
   value: number;
   index: number;
   dimension: "row" | "column";
+  disabled?: boolean;
 }
 
-export const TentsCounter = ({ value, size, index, dimension }: TentsCounterProps) => {
+export const TentsCounter = ({
+  value,
+  size,
+  index,
+  dimension,
+  disabled,
+}: TentsCounterProps) => {
   const dispatch = useAppDispatch();
 
   const tentsCount = useAppSelector(((state) => {
@@ -29,6 +36,9 @@ export const TentsCounter = ({ value, size, index, dimension }: TentsCounterProp
   const isFullfilled = tentsCount === value;
 
   const handleClick = () => {
+    if (disabled) {
+      return;
+    }
     dispatch(fillWithGrass({ [dimension]: index }));
   }
 

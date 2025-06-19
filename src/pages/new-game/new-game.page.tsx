@@ -1,6 +1,6 @@
 import Select, { type Options } from 'react-select'
 import s from "./new-game.module.scss";
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useAppDispatch } from 'src/stores/hooks';
 import clsx from 'clsx';
 import axios from 'axios';
@@ -33,12 +33,36 @@ interface GenerateResponse {
   row: number[];
 }
 
+const getInitialValues = () => {
+  const storageValue = localStorage.getItem("gameSettings");
+
+  if (storageValue) {
+    return JSON.parse(storageValue);
+  }
+
+  return {
+    rows: ROWS_OPTIONS[2],
+    columns: COLUMNS_OPTIONS[2],
+    difficulty: DIFFICULTY_OPTIONS[1],
+  }
+}
+
 export const NewGamePage = () => {
-  const [rows, setRows] = useState(ROWS_OPTIONS[2]);
-  const [columns, setColumns] = useState(COLUMNS_OPTIONS[2]);
-  const [difficulty, setDifficulty] = useState(DIFFICULTY_OPTIONS[1]);
+  const initialValues = useMemo(() => getInitialValues(), []);
+
+  const [rows, setRows] = useState(initialValues.rows);
+  const [columns, setColumns] = useState(initialValues.columns);
+  const [difficulty, setDifficulty] = useState(initialValues.difficulty);
 
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("gameSettings", JSON.stringify({ rows, columns, difficulty }));
+    } catch (error) {
+      console.error(error);
+    }
+  }, [rows, columns, difficulty]);
 
   const dispatch = useAppDispatch();
 
@@ -65,12 +89,16 @@ export const NewGamePage = () => {
       }))
       console.log(resp);
     } catch (error) {
+      setLoading(false);
       console.error(error);
     }
   }
 
   return (
     <div className={s.root}>
+      <div className={s.mainTitle}>
+        Палатки и деревья
+      </div>
       <div className={s.title}>
         Выберите размер поля
       </div>

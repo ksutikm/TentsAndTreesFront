@@ -12,6 +12,7 @@ import { isTreeCell } from "src/shared/lib/is-tree-cell";
 interface CellProps {
   size: number | string;
   cell: Cell;
+  disabled?: boolean;
 }
 
 const valueClassNames: Record<CellType, string> = {
@@ -28,7 +29,7 @@ const bindingClassNames: Record<string, string> = {
   "0,1": s.binding_right,
 };
 
-export const CellView = ({ cell, size }: CellProps) => {
+export const CellView = ({ cell, size, disabled }: CellProps) => {
   const dispatch = useAppDispatch();
 
   const boundCell = useAppSelector((state) => {
@@ -51,14 +52,25 @@ export const CellView = ({ cell, size }: CellProps) => {
   const grassClassName = `grass_${colorIndex}`;
 
   const handleClick = () => {
+    if (disabled) {
+      return;
+    }
     dispatch(toggleCellType(cell));
   }
 
-  const handlePointerDown = () => {
+  const handlePointerDown = (event: React.PointerEvent) => {
+    if (disabled) {
+      return;
+    }
+    event.preventDefault();
     dispatch(startBindingCell(cell));
   }
 
-  const handlePointerMove = () => {
+  const handlePointerMove = (event: React.PointerEvent) => {
+    if (disabled) {
+      return;
+    }
+    event.preventDefault();
     dispatch(changePendingCellBinding(cell));
   }
 

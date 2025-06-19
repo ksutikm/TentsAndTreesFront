@@ -8,7 +8,7 @@ import { stopBindingCell } from "src/stores/field-store";
 
 export const FieldView = () => {
   const dispatch = useAppDispatch();
-  const { field, isInitialized } = useAppSelector((state) => state.field);
+  const { field, isInitialized, isSolved } = useAppSelector((state) => state.field);
   const [windowSize, setWindowSize] = useState(Math.min(window.innerHeight, window.innerWidth));
 
   useEffect(() => {
@@ -63,6 +63,7 @@ export const FieldView = () => {
         {field.columnsLimits.map((value, columnIndex) => (
           <TentsCounter
             dimension="column"
+            disabled={isSolved}
             key={columnIndex}
             index={columnIndex}
             size={cellSize}
@@ -74,6 +75,7 @@ export const FieldView = () => {
         <div className={s.row} key={rowIndex}>
           <TentsCounter
             dimension="row"
+            disabled={isSolved}
             index={rowIndex}
             size={cellSize}
             value={field.rowsLimits[rowIndex]}
@@ -81,6 +83,7 @@ export const FieldView = () => {
           {row.map((cell) => (
             <CellView
               key={cell.id}
+              disabled={isSolved}
               cell={cell}
               size={cellSize}
             />
