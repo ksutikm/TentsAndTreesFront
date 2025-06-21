@@ -1,7 +1,7 @@
 import { FieldView } from 'src/components/field/field'
 import { useAppDispatch, useAppSelector } from 'src/stores/hooks'
 import { ControlButtons } from 'src/components/control-buttons/control-buttons'
-import { NewGamePage } from 'src/pages/new-game/new-game.page'
+import { NewGamePage } from 'src/components/new-game/new-game.page'
 import { useEffect, useState } from 'react'
 import { setField } from 'src/stores/field-store'
 import { WinnerModal } from 'src/components/winner-modal/winner-modal'
