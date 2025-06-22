@@ -5,7 +5,7 @@ import s from "./cell-view.module.scss"
 import clsx from "clsx";
 import type { Cell } from "src/shared/types";
 import { useAppDispatch, useAppSelector } from "src/stores/hooks";
-import { changePendingCellBinding, startBindingCell, toggleCellType } from "src/stores/field-store";
+import { toggleCellType } from "src/stores/field-store";
 import { isTentCell } from "src/shared/lib/is-tent-cell";
 import { isTreeCell } from "src/shared/lib/is-tree-cell";
 import { isCellInvalid } from "src/shared/lib/is-cell-invalid";
@@ -63,22 +63,6 @@ export const CellView = ({ cell, size, disabled }: CellProps) => {
     dispatch(toggleCellType(cell));
   }
 
-  const handlePointerDown = (event: React.PointerEvent) => {
-    if (disabled) {
-      return;
-    }
-    event.preventDefault();
-    dispatch(startBindingCell(cell));
-  }
-
-  const handlePointerMove = (event: React.PointerEvent) => {
-    if (disabled) {
-      return;
-    }
-    event.preventDefault();
-    dispatch(changePendingCellBinding(cell));
-  }
-
   const valueClassName = valueClassNames[cell.type];
 
   return (
@@ -91,8 +75,6 @@ export const CellView = ({ cell, size, disabled }: CellProps) => {
         [s.invalid]: isInvalid,
       })}
       onClick={handleClick}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
     >
       <div className={clsx(s.innerBox, valueClassName)}>
         {cell.type === CellType.Tent && (

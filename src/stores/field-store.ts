@@ -292,22 +292,24 @@ export const fieldSlice = createSlice({
       state.pendingCell = null;
     },
 
-    startBindingCell: (state, action: PayloadAction<Cell>) => {
+    startBindingCell: (state, action: PayloadAction<Position>) => {
       if (state.pendingCell) {
         // произошло второе касание - может быть зум или перемещение экрана
         state.pendingCell = null;
 
         return;
       }
-      const cell = action.payload;
+      const { row, column } = action.payload
+      const cell = state.field.cells[row][column];
 
       if ((isTentCell(cell) && !cell.treeId) || (isTreeCell(cell) && !cell.tentId)) {
         state.pendingCell = cell;
       }
     },
 
-    changePendingCellBinding: (state, action: PayloadAction<Cell>) => {
-      const targetCell = action.payload;
+    changePendingCellBinding: (state, action: PayloadAction<Position>) => {
+      const { row, column } = action.payload
+      const targetCell = state.field.cells[row][column];
 
       const { pendingCell, field: { cells } } = state;
 

@@ -21,6 +21,7 @@ export const ControlButtons = ({ className }: ControlButtonsProps) => {
   const handleSolve = () => {
     dispatch(solve());
   }
+
   return (
     <div className={clsx(s.root, className)}>
       <button className={s.green} onClick={handleNewGame}>

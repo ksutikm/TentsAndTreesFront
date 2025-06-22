@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import s from "./field-view.module.scss";
 import { CellView } from "src/components/cell-view/cell-view";
 import { useAppDispatch, useAppSelector } from "src/stores/hooks";
-import { stopBindingCell } from "src/stores/field-store";
+import { changePendingCellBinding, startBindingCell, stopBindingCell } from "src/stores/field-store";
 import { ConstraintView } from "src/components/constraint-view/constraint-view";
+import type { Position } from "src/shared/types";
 
 
 export const FieldView = () => {
@@ -60,8 +61,41 @@ export const FieldView = () => {
     }
   }, []);
 
+  const getTargetCellPosition = (event: React.PointerEvent): Position => {
+    const { top, left } = rootRef.current!.getBoundingClientRect();
+    const localCoords = {
+      x: event.clientX - left,
+      y: event.clientY - top,
+    };
+    const row = Math.floor(localCoords.y / cellSize) - 1;
+    const column = Math.floor(localCoords.x / cellSize) - 1;
+
+    return { row, column };
+  }
+
+  const handlePointerDown = (event: React.PointerEvent) => {
+    if (isSolved) {
+      return;
+    }
+    event.preventDefault();
+    dispatch(startBindingCell(getTargetCellPosition(event)));
+  }
+
+  const handlePointerMove = (event: React.PointerEvent) => {
+    if (isSolved) {
+      return;
+    }
+    event.preventDefault();
+    dispatch(changePendingCellBinding(getTargetCellPosition(event)));
+  }
+
   return (
-    <div className={s.field} ref={rootRef}>
+    <div
+      ref={rootRef}
+      className={s.field}
+      onPointerMove={handlePointerMove}
+      onPointerDown={handlePointerDown}
+    >
       <div className={s.row}>
         <div style={{ width: cellSize }} />
         {field.columnsLimits.map((value, columnIndex) => (
