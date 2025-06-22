@@ -88,7 +88,6 @@ export const NewGamePage = () => {
         rowsLimits: resp.data.row,
         size: { column: resp.data.col.length, row: resp.data.row.length },
       }))
-      console.log(resp);
     } catch (error) {
       setLoading(false);
       console.error(error);

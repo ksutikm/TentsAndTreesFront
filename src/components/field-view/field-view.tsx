@@ -5,11 +5,17 @@ import { useAppDispatch, useAppSelector } from "src/stores/hooks";
 import { changePendingCellBinding, startBindingCell, stopBindingCell } from "src/stores/field-store";
 import { ConstraintView } from "src/components/constraint-view/constraint-view";
 import type { Position } from "src/shared/types";
+import { isTentCell } from "src/shared/lib/is-tent-cell";
+import { isTreeCell } from "src/shared/lib/is-tree-cell";
+import clsx from "clsx";
 
 
 export const FieldView = () => {
   const dispatch = useAppDispatch();
-  const { field, isInitialized, isSolved } = useAppSelector((state) => state.field);
+  const { field, isInitialized, isSolved, isLoading, pendingCell } = useAppSelector((state) => state.field);
+
+  const isDisabled = isSolved || isLoading;
+
   const [windowSize, setWindowSize] = useState(Math.min(window.innerHeight, window.innerWidth));
 
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -32,7 +38,6 @@ export const FieldView = () => {
 
   useEffect(() => {
     if (!isInitialized) {
-      console.log("mo")
       return;
     }
     try {
@@ -74,60 +79,70 @@ export const FieldView = () => {
   }
 
   const handlePointerDown = (event: React.PointerEvent) => {
-    if (isSolved) {
+    if (isDisabled) {
       return;
     }
     event.preventDefault();
-    dispatch(startBindingCell(getTargetCellPosition(event)));
+    const position = getTargetCellPosition(event);
+    const cell = field.cells[position.row]?.[position.column];
+    if (isTentCell(cell) && !cell.treeId || isTreeCell(cell) && !cell.tentId) {
+      event.preventDefault();
+      dispatch(startBindingCell(cell));
+    }
   }
 
   const handlePointerMove = (event: React.PointerEvent) => {
-    if (isSolved) {
+    if (isDisabled || !pendingCell) {
       return;
     }
     event.preventDefault();
-    dispatch(changePendingCellBinding(getTargetCellPosition(event)));
+    const position = getTargetCellPosition(event);
+    const cell = field.cells[position.row]?.[position.column];
+    if (cell) {
+      dispatch(changePendingCellBinding(cell));
+    }
   }
 
   return (
     <div
-      ref={rootRef}
       className={s.field}
       onPointerMove={handlePointerMove}
       onPointerDown={handlePointerDown}
     >
-      <div className={s.row}>
-        <div style={{ width: cellSize }} />
-        {field.columnsLimits.map((value, columnIndex) => (
-          <ConstraintView
-            dimension="column"
-            disabled={isSolved}
-            key={columnIndex}
-            index={columnIndex}
-            size={cellSize}
-            value={value}
-          />
-        ))}
-      </div>
-      {field.cells.map((row, rowIndex) => (
-        <div className={s.row} key={rowIndex}>
-          <ConstraintView
-            dimension="row"
-            disabled={isSolved}
-            index={rowIndex}
-            size={cellSize}
-            value={field.rowsLimits[rowIndex]}
-          />
-          {row.map((cell) => (
-            <CellView
-              key={cell.id}
-              disabled={isSolved}
-              cell={cell}
+      <div ref={rootRef} className={clsx({ [s.disabled]: isLoading })}>
+        <div className={s.row}>
+          <div style={{ width: cellSize }} />
+          {field.columnsLimits.map((value, columnIndex) => (
+            <ConstraintView
+              dimension="column"
+              disabled={isDisabled}
+              key={columnIndex}
+              index={columnIndex}
               size={cellSize}
+              value={value}
             />
           ))}
         </div>
-      ))}
+        {field.cells.map((row, rowIndex) => (
+          <div className={s.row} key={rowIndex}>
+            <ConstraintView
+              dimension="row"
+              disabled={isDisabled}
+              index={rowIndex}
+              size={cellSize}
+              value={field.rowsLimits[rowIndex]}
+            />
+            {row.map((cell) => (
+              <CellView
+                key={cell.id}
+                disabled={isDisabled}
+                cell={cell}
+                size={cellSize}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

@@ -7,6 +7,7 @@ $empty-color: #f0ead2;
   position: relative;
   display: flex;
   align-items: center;
+  box-sizing: border-box;
   justify-content: center;
   border-right: 1px solid $border-color;
   border-bottom: 1px solid $border-color;
@@ -17,9 +18,11 @@ $empty-color: #f0ead2;
 }
 
 .innerBox {
-  position: relative;
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  padding: 5px;
   padding-top: 100%;
   transition: var(--transition);
 }

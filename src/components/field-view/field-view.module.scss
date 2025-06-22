@@ -9,3 +9,8 @@
 .row {
   display: flex;
 }
+
+.disabled {
+  transition: opacity .3s linear;
+  opacity: 0.5;
+}

@@ -16,6 +16,7 @@ export interface FieldStore {
   pendingCell: TentCell | TreeCell | null;
   isSolved: boolean;
   isSolvedBySolver: boolean;
+  isLoading: boolean;
 }
 
 const initialState: FieldStore = {
@@ -33,6 +34,7 @@ const initialState: FieldStore = {
   pendingCell: null,
   isSolved: false,
   isSolvedBySolver: false,
+  isLoading: false,
 }
 
 const getBindableTents = (field: Field, position: Position) => {
@@ -206,7 +208,7 @@ export const fieldSlice = createSlice({
     },
 
     resetField: (state) => {
-      for (let row = 0; row < state.field.size.row; ++ row) {
+      for (let row = 0; row < state.field.size.row; ++row) {
         for (let column = 0; column < state.field.size.column; ++column) {
           const cell = state.field.cells[row][column];
           if (isTreeCell(cell)) {
@@ -234,30 +236,34 @@ export const fieldSlice = createSlice({
       return initialState;
     },
 
-    solve: (state) => {
-      const cells = Array.from({ length: state.field.size.row }).map(() => {
-        return Array.from({ length: state.field.size.column }).map(() => CellType.Empty)
-      });
+    solve: (state, action: PayloadAction<CellType[][] | undefined>) => {
+      let tentsPositions: Position[] | undefined;
 
-      for (let row = 0; row < state.field.size.row; ++ row) {
-        for (let column = 0; column < state.field.size.column; ++column) {
-          const cell = state.field.cells[row][column];
-          // console.log(cell.type, isTreeCell(cell));
-          if (isTreeCell(cell)) {
-            cells[row][column] = CellType.Tree;
-          }
-        }
+      if (action.payload) {
+        tentsPositions = action.payload.flatMap((row, rowIndex) => {
+          return row.map((cellType, columnIndex) => {
+            if (cellType === CellType.Tent) {
+              return { row: rowIndex, column: columnIndex };
+            }
+
+            return null;
+          }).filter(Boolean) as Position[];
+        })
+      } else {
+        const cells = state.field.cells.map((row) => {
+          return row.map((cell) => isTreeCell(cell) ? CellType.Tree : CellType.Empty);
+        });
+
+        const solver = new BacktrackSolver(
+          cells,
+          state.field.rowsLimits,
+          state.field.columnsLimits,
+        );
+        tentsPositions = solver.solve();
       }
 
-
-      const solver = new BacktrackSolver(
-        cells,
-        state.field.rowsLimits,
-        state.field.columnsLimits,
-      );
-      const tents = solver.solve();
-      if (tents) {
-        for (let row = 0; row < state.field.size.row; ++ row) {
+      if (tentsPositions) {
+        for (let row = 0; row < state.field.size.row; ++row) {
           for (let column = 0; column < state.field.size.column; ++column) {
             const cell = state.field.cells[row][column];
             if (isTreeCell(cell)) {
@@ -275,7 +281,7 @@ export const fieldSlice = createSlice({
             }
           }
         }
-        tents.forEach(({ row, column }) => {
+        tentsPositions.forEach(({ row, column }) => {
           state.field.cells[row][column] = {
             ...state.field.cells[row][column],
             type: CellType.Tent,
@@ -286,30 +292,30 @@ export const fieldSlice = createSlice({
       } else {
         alert("Что-то пошло не так");
       }
+
+      state.isLoading = false;
     },
 
     stopBindingCell: (state) => {
       state.pendingCell = null;
     },
 
-    startBindingCell: (state, action: PayloadAction<Position>) => {
+    startBindingCell: (state, action: PayloadAction<Cell>) => {
       if (state.pendingCell) {
         // произошло второе касание - может быть зум или перемещение экрана
         state.pendingCell = null;
 
         return;
       }
-      const { row, column } = action.payload
-      const cell = state.field.cells[row][column];
+      const cell = action.payload;
 
       if ((isTentCell(cell) && !cell.treeId) || (isTreeCell(cell) && !cell.tentId)) {
         state.pendingCell = cell;
       }
     },
 
-    changePendingCellBinding: (state, action: PayloadAction<Position>) => {
-      const { row, column } = action.payload
-      const targetCell = state.field.cells[row][column];
+    changePendingCellBinding: (state, action: PayloadAction<Cell>) => {
+      const targetCell = action.payload;
 
       const { pendingCell, field: { cells } } = state;
 
@@ -384,6 +390,10 @@ export const fieldSlice = createSlice({
           }
         }
       }
+    },
+
+    startLoading: (state) => {
+      state.isLoading = true;
     }
   },
 })
@@ -398,6 +408,7 @@ export const {
   stopBindingCell,
   startBindingCell,
   changePendingCellBinding,
+  startLoading,
 } = fieldSlice.actions
 
 export const fieldReducer = fieldSlice.reducer
