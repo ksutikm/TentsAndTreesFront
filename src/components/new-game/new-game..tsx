@@ -7,6 +7,7 @@ import axios from 'axios';
 import { setField } from 'src/stores/field-store';
 import type { CellType } from 'src/shared/enums';
 import { createCell } from 'src/shared/lib/create-cell';
+import Tree from "src/assets/icons/loading.svg"
 
 const MIN_VALUE = 5;
 
@@ -105,12 +106,14 @@ export const NewGamePage = () => {
       <div className={s.selectsWrapper}>
         <Select
           className={s.select}
+          isSearchable={false}
           value={rows}
           options={ROWS_OPTIONS}
           onChange={(value) => value && setRows(value)}
         />
         <Select
           className={s.select}
+          isSearchable={false}
           value={columns}
           options={COLUMNS_OPTIONS}
           onChange={(value) => value && setColumns(value)}
@@ -122,6 +125,7 @@ export const NewGamePage = () => {
       <div className={s.selectsWrapper}>
         <Select
           className={s.select}
+          isSearchable={false}
           value={difficulty}
           options={DIFFICULTY_OPTIONS}
           onChange={(value) => value && setDifficulty(value)}
@@ -131,7 +135,8 @@ export const NewGamePage = () => {
         className={clsx({ [s.disabled]: loading })}
         onClick={handleStartGame}
       >
-        Начать игру
+        <span>Начать игру</span>
+        {loading && <img src={Tree} alt="Загрузка" />}
       </button>
     </div>
   )

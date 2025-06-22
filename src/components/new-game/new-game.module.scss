@@ -32,6 +32,9 @@
   cursor: pointer;
   border: 1px solid #877b66;
   transition: var(--transition);
+  display: flex;
+  justify-content: center;
+  gap: 16px;
 
   @include hoverable-background($color: #d4e6b5, $lightness: -20%);
 
@@ -39,6 +42,10 @@
     background: color.scale(#d4e6b5, $lightness: 0%);
     opacity: 0.5;
     cursor: default;
+  }
+
+  img {
+    width: 20px;
   }
 }
 

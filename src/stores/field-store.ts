@@ -1,6 +1,8 @@
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, type Draft, type PayloadAction } from "@reduxjs/toolkit";
 import { CellType } from "src/shared/enums";
 import { BacktrackSolver } from "src/shared/lib/backtrack-solver";
+import { getNeighborCells } from "src/shared/lib/get-neighbor-cells";
+import { isCellInvalid } from "src/shared/lib/is-cell-invalid";
 import { isEmptyCell } from "src/shared/lib/is-empty-cell";
 import { isGrassCell } from "src/shared/lib/is-grass-cell";
 import { isTentCell } from "src/shared/lib/is-tent-cell";
@@ -33,71 +35,9 @@ const initialState: FieldStore = {
   isSolvedBySolver: false,
 }
 
-const ORTO_NEIGHBORS = [
-  { dRow: -1, dColumn: 0 },
-  { dRow: 1, dColumn: 0 },
-  { dRow: 0, dColumn: -1 },
-  { dRow: 0, dColumn: 1 },
-];
-const DIAGONAL_NEIGHBORS = [
-  { dRow: -1, dColumn: -1 },
-  { dRow: -1, dColumn: 0 },
-  { dRow: -1, dColumn: 1 },
-  { dRow: 1, dColumn: -1 },
-  { dRow: 1, dColumn: 0 },
-  { dRow: 1, dColumn: 1 },
-  { dRow: 0, dColumn: -1 },
-  { dRow: 0, dColumn: 1 },
-];
-
-const getOrtoNeighborTents = (field: Field, position: Position) => {
-  const { row, column } = position;
-
-  return ORTO_NEIGHBORS.reduce<TentCell[]>(
-    (acc, { dRow, dColumn }) => {
-      if (
-        row + dRow < 0 ||
-        row + dRow >= field.size.row ||
-        column + dColumn < 0 ||
-        column + dColumn >= field.size.column
-      ) {
-        return acc;
-      }
-      const neighbor = field.cells[row + dRow][column + dColumn];
-      if (isTentCell(neighbor)) {
-        acc.push(neighbor);
-      }
-      return acc;
-    },
-    []
-  );
-}
-
-const getDiagonalNeighborTents = (field: Field, position: Position) => {
-  const { row, column } = position;
-
-  return DIAGONAL_NEIGHBORS.reduce<TentCell[]>(
-    (acc, { dRow, dColumn }) => {
-      if (
-        row + dRow < 0 ||
-        row + dRow >= field.size.row ||
-        column + dColumn < 0 ||
-        column + dColumn >= field.size.column
-      ) {
-        return acc;
-      }
-      const neighbor = field.cells[row + dRow][column + dColumn];
-      if (isTentCell(neighbor)) {
-        acc.push(neighbor);
-      }
-      return acc;
-    },
-    []
-  );
-}
-
 const getBindableTents = (field: Field, position: Position) => {
-  const neighborTents = getOrtoNeighborTents(field, position);
+  const neighborTents = getNeighborCells(field.cells, position, "orto")
+    .filter(isTentCell);
 
   return neighborTents.filter((tent) => !tent.treeId)
 }
@@ -114,22 +54,25 @@ const countTentsInColumn = (cells: Cell[][], column: number) => {
 const isSolved = (field: Field) => {
   const { cells, rowsLimits, columnsLimits } = field;
 
-  if (cells.some((row) => {
-    return row.some((cell) => {
-      if (!isTentCell(cell)) {
-        return false;
-      }
-      const neighborTents = getDiagonalNeighborTents(field, cell.position)
-      return neighborTents.length > 0;
-    })
-  })) {
-    return false;
-  }
+  const hasInvalidCell = cells.some((row) => {
+    return row.some(
+      (cell) => isCellInvalid(cell, field.cells)
+    );
+  });
 
   return (
+    !hasInvalidCell &&
     rowsLimits.every((value, rowIndex) => value === countTentsInRow(cells, rowIndex)) &&
     columnsLimits.every((value, columnIndex) => value === countTentsInColumn(cells, columnIndex))
   )
+}
+
+const updateCellsMap = (state: Draft<FieldStore>) => {
+  state.field.cells.forEach((row) => {
+    row.forEach((cell) => {
+      state.cellsMap[cell.id] = cell;
+    });
+  });
 }
 
 export const fieldSlice = createSlice({
@@ -138,11 +81,7 @@ export const fieldSlice = createSlice({
   reducers: {
     setField: (state, action: PayloadAction<Field>) => {
       state.field = action.payload;
-      state.field.cells.forEach((row) => {
-        row.forEach((cell) => {
-          state.cellsMap[cell.id] = cell;
-        });
-      });
+      updateCellsMap(state);
       state.isInitialized = true;
       state.isSolved = isSolved(state.field);
       state.isSolvedBySolver = state.isSolved;
@@ -215,11 +154,7 @@ export const fieldSlice = createSlice({
         }
       }
 
-      state.field.cells.forEach((row) => {
-        row.forEach((cell) => {
-          state.cellsMap[cell.id] = cell;
-        });
-      });
+      updateCellsMap(state);
 
       state.isSolved = isSolved(state.field);
     },
@@ -267,11 +202,7 @@ export const fieldSlice = createSlice({
         }
       }
 
-      state.field.cells.forEach((row) => {
-        row.forEach((cell) => {
-          state.cellsMap[cell.id] = cell;
-        });
-      });
+      updateCellsMap(state);
     },
 
     resetField: (state) => {
@@ -294,11 +225,7 @@ export const fieldSlice = createSlice({
         }
       }
 
-      state.field.cells.forEach((row) => {
-        row.forEach((cell) => {
-          state.cellsMap[cell.id] = cell;
-        });
-      });
+      updateCellsMap(state);
       state.isSolved = false;
       state.isSolvedBySolver = false;
     },

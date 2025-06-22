@@ -4,17 +4,16 @@
   width: 100%;
   display: flex;
   justify-content: flex-start;
-  padding-top: 32px;
-  padding-bottom: 12px;
+  margin-bottom: 12px;
   gap: 20px;
-
-  @media screen and (max-width: 600px) {
-    flex-direction: column;
-  }
 }
 
 .spacer {
   flex-grow: 1;
+
+  @media screen and (max-width: 600px) {
+    display: none;
+  }
 }
 
 .root button {
@@ -37,6 +36,15 @@
 
   &.red {
     @include hoverable-background($color: #fbaf7c, $lightness: -20%);
+  }
+
+  @media screen and (max-width: 1024px) {
+    font-size: 14px;
+    padding: 6px 12px;
+  }
+
+  @media screen and (max-width: 600px) {
+    font-size: 12px;
   }
 }
 

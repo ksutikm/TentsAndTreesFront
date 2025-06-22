@@ -30,6 +30,22 @@
   font-size: min(4cqw, 30px);
   font-weight: 500;
   font-family: Arial, Helvetica, sans-serif;
+
+  @media screen and (max-width: 800px) {
+    font-size: 3cqw;
+  }
+
+  @media screen and (max-width: 400px) {
+    font-size: 2.5cqw;
+  }
+
+  @media screen and (max-height: 600px) {
+    font-size: 2cqw;
+  }
+
+  @media screen and (max-height: 400px) {
+    font-size: 1.5cqw;
+  }
 }
 
 .incorrect {

@@ -1,10 +1,11 @@
 import { useAppDispatch, useAppSelector } from "src/stores/hooks";
-import s from "./tents-counter.module.scss"
 import { isTentCell } from "src/shared/lib/is-tent-cell";
 import clsx from "clsx";
 import { fillWithGrass } from "src/stores/field-store";
+import s from "./constraint-view.module.scss"
+import { isEmptyCell } from "src/shared/lib/is-empty-cell";
 
-interface TentsCounterProps {
+interface ConstraintViewProps {
   size: number | string;
   value: number;
   index: number;
@@ -12,27 +13,30 @@ interface TentsCounterProps {
   disabled?: boolean;
 }
 
-export const TentsCounter = ({
+export const ConstraintView = ({
   value,
   size,
   index,
   dimension,
   disabled,
-}: TentsCounterProps) => {
+}: ConstraintViewProps) => {
   const dispatch = useAppDispatch();
 
-  const tentsCount = useAppSelector(((state) => {
-    if (dimension === "column") {
-      return state.field.field.cells
-        .map((row) => row[index])
-        .filter((cell) => isTentCell(cell)).length;
-    }
+  const { tentsCount, emptyCount } = useAppSelector(((state) => {
+    const cells = dimension === "column"
+      ? state.field.field.cells.map((row) => row[index])
+      : state.field.field.cells[index];
 
-    return state.field.field.cells[index]
-      .filter((cell) => isTentCell(cell)).length;
+    const tentsCount = cells.filter(isTentCell).length;
+    const emptyCount = cells.filter(isEmptyCell).length;
+
+    return {
+      tentsCount,
+      emptyCount,
+    };
   }));
 
-  const isCorrect = tentsCount <= value;
+  const isCorrect = (tentsCount < value && emptyCount > 0) || tentsCount === value;
   const isFullfilled = tentsCount === value;
 
   const handleClick = () => {

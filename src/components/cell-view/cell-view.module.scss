@@ -65,6 +65,10 @@ $empty-color: #f0ead2;
   @include hoverable-background($color: #80b918, $lightness: -5%);
 }
 
+.invalid {
+  @include hoverable-background($color: #bc4b51, $lightness: -5%);
+}
+
 $bindingWidth: 4px;
 
 .binding_top {

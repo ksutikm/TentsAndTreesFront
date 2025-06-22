@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from "src/stores/hooks";
 import { changePendingCellBinding, startBindingCell, toggleCellType } from "src/stores/field-store";
 import { isTentCell } from "src/shared/lib/is-tent-cell";
 import { isTreeCell } from "src/shared/lib/is-tree-cell";
+import { isCellInvalid } from "src/shared/lib/is-cell-invalid";
 
 interface CellProps {
   size: number | string;
@@ -31,6 +32,10 @@ const bindingClassNames: Record<string, string> = {
 
 export const CellView = ({ cell, size, disabled }: CellProps) => {
   const dispatch = useAppDispatch();
+
+  const isInvalid = useAppSelector((state) => {
+    return isCellInvalid(cell, state.field.field.cells);
+  });
 
   const boundCell = useAppSelector((state) => {
     if (isTentCell(cell) && cell.treeId) {
@@ -83,6 +88,7 @@ export const CellView = ({ cell, size, disabled }: CellProps) => {
         [s[grassClassName]]: cell.type !== CellType.Empty,
         [s.border_left]: cell.position.column === 0,
         [s.border_top]: cell.position.row == 0,
+        [s.invalid]: isInvalid,
       })}
       onClick={handleClick}
       onPointerDown={handlePointerDown}
