@@ -9,6 +9,26 @@ import { isTentCell } from "src/shared/lib/is-tent-cell";
 import { isTreeCell } from "src/shared/lib/is-tree-cell";
 import clsx from "clsx";
 
+const HORIZONTAL_CONTAINER_PADDING = 40;
+const MAX_CONTAINER_SIZE = 1040;
+const PADDING_BOTTOM = 40;
+const PADDING_TOP_FALLBACK = 76;
+
+const getCellSize = (
+  fieldSize: Position,
+  paddingTop = PADDING_TOP_FALLBACK
+) => {
+  const width = Math.min(window.innerWidth, MAX_CONTAINER_SIZE);
+  const viewport = {
+    width: width - HORIZONTAL_CONTAINER_PADDING,
+    height: Math.min(window.innerHeight - paddingTop - PADDING_BOTTOM, MAX_CONTAINER_SIZE),
+  };
+  const horizontalCellSize = viewport.width / (fieldSize.column + 1)
+  const verticalCellSize = viewport.height / (fieldSize.row + 1)
+  const cellSize = Math.min(horizontalCellSize, verticalCellSize);
+
+  return cellSize;
+}
 
 export const FieldView = () => {
   const dispatch = useAppDispatch();
@@ -16,14 +36,14 @@ export const FieldView = () => {
 
   const isDisabled = isSolved || isLoading;
 
-  const [windowSize, setWindowSize] = useState(Math.min(window.innerHeight, window.innerWidth));
+  const [cellSize, setCellSize] = useState(getCellSize(field.size));
 
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const handleResize = () => {
-      const { top, width } = rootRef.current!.getBoundingClientRect();
-      setWindowSize(Math.min(window.innerHeight - top, width));
+      const top = rootRef.current?.getBoundingClientRect()?.top;
+      setCellSize(getCellSize(field.size, top));
     }
     handleResize();
     window.addEventListener("resize", handleResize);
@@ -32,9 +52,6 @@ export const FieldView = () => {
       window.removeEventListener("resize", handleResize);
     }
   }, []);
-
-  const containerSize = Math.min(windowSize - 40, 1000);
-  const cellSize = containerSize / (Math.max(field.size.row, field.size.column) + 1);
 
   useEffect(() => {
     if (!isInitialized) {

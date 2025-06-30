@@ -74,8 +74,8 @@ export const NewGamePage = () => {
     setLoading(true);
     try {
       const resp = await axios.post<GenerateResponse>("https://tents-api.onrender.com/generate", {
-        rows: Math.min(rows.value, columns.value),
-        cols: Math.max(rows.value, columns.value),
+        rows: rows.value,
+        cols: columns.value,
         difficulty: difficulty.value,
       });
       dispatch(setField({
